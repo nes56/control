@@ -5,8 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionServer extends Thread {
@@ -32,10 +30,10 @@ public class VisionServer extends Thread {
 		}
         while(true) {
            try {
-              //  srvSocket = new ServerSocket(PORT,2,addr);
+                srvSocket = new ServerSocket(PORT,2,addr);
                 while(true) {
-                //    Socket s = srvSocket.accept();
-                 //   new SocketHandlerTask(s);
+                    Socket s = srvSocket.accept();
+                    new SocketHandlerTask(s);
                 }
             } catch (Exception e) {
                 try {

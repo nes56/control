@@ -9,64 +9,50 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.Robot;
-import frc.robot.RobotMap;
-import frc.robot.commands.OpenShifter;
-import frc.robot.commands.controlClimbing;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import frc.robot.commands.GoStraight1;
+import frc.robot.commands.ReleaseJacks;
+import frc.robot.commands.controlClimbing1;
 
 /**
  * Add your docs here.
  */
-public class DriverInterface extends Subsystem {
- 
+public class DriverInterface {
 
     public Joystick joystickLeft;
     public Joystick joystickRight;
     public Joystick Bottom_Button ;
     public Joystick Botton_Forward ;
     public XboxController xbox; 
-    public boolean isSpeedMode;    
+    
+    // Right and Lefgt buttons
+    public static int BUTTON_SHIFTER = 1;   // trigger button
+    // Right Buttons
+    public static int START_CLIMB = 11;  // big front button
+    public static int CALC_KF = 4;  // on JS buttom right button
+    public static int RELEASE_JACK = 6;  // on JS top right button
+
+    // Left Buttons
+    public static int REVERSE_MODE = 9;   // big center button
+    public static int FORWARD_MODE = 11;  // big front button
+    public static int RESET_ENCODER = 7;  // big back button
+    public static int RESET_ARM_ENCODER = 8;  // small back button
+
+    // buttons
+    JoystickButton climbButton;
+    JoystickButton calcKF;
+    JoystickButton releaseJack;
     
     public DriverInterface(){
-      joystickRight=new Joystick(2);
-      joystickLeft=new Joystick(1);
+      joystickRight=new Joystick(1);
+      joystickLeft=new Joystick(2);
       xbox= new XboxController(0);
-      isSpeedMode= true;
+      climbButton = new JoystickButton(joystickRight, START_CLIMB);
+   //   climbButton.whenPressed(new controlClimbing1());
+      calcKF = new JoystickButton(joystickRight, CALC_KF);
+      calcKF.whenPressed(new GoStraight1());
+      releaseJack = new JoystickButton(joystickRight, RELEASE_JACK);
+      releaseJack.whenPressed(new ReleaseJacks());
     }
+}
 
-    public void Reset(){
-      Robot.chassis.motorsLeft.ResetEnc();
-      Robot.chassis.motorsRight.ResetEnc();
-    }
-    
-    public void UpdateStatus(){
-      if(joystickRight.getRawButtonPressed(RobotMap.BUTTON_SHIFTER)){
-        //Robot.chassis.ChangeShifter(true);
-        System.out.println("open buchna");
-        Robot.chassis.setSlowMode();
-      }
-      else if(joystickLeft.getRawButtonPressed(RobotMap.BUTTON_SHIFTER)){
-        //Robot.chassis.ChangeShifter(false);
-        System.out.println("close buchna");
-        Robot.chassis.setFastMode();
-      }
-      else{
-        Robot.chassis.offShifter();
-      }
-
-    if(joystickLeft.getRawButtonPressed(7)){  //set reverse mode 
-      Robot.chassis.SetReverseMode(true);
-    }
-    else if(joystickLeft.getRawButtonPressed(8)){   //cancel reverse mode
-      Robot.chassis.SetReverseMode(false);
-    }
-    if(joystickLeft.getRawButtonPressed(9)){ //go straight
-
-    }
-
-  }
-    @Override
-    public void initDefaultCommand() {}
-    }   

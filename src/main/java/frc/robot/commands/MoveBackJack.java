@@ -7,12 +7,19 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
 
 public class MoveBackJack extends Command {
+
+  final double power = 0.3;
+  TalonSRX motor;
+
   public MoveBackJack() {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
+    motor = Robot.climb.move_motor;
   }
 
   // Called just before this Command runs the first time
@@ -23,6 +30,7 @@ public class MoveBackJack extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
+    motor.set(ControlMode.PercentOutput, power);
   }
 
   // Make this return true when this Command no longer needs to run execute()

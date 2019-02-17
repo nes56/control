@@ -2,7 +2,6 @@ package frc.robot.Vision;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionData implements Sendable {
 
@@ -12,14 +11,39 @@ public class VisionData implements Sendable {
     public static VisionData frontData = new VisionData(true);
     public static VisionData backData = new VisionData(false);
 
+    public String name;
+
 
     public VisionData(boolean front){
         this.front = front;
+        p1 = new point();
+        p2 = new point();
+
+        if(front) {
+            setName("Front Vis");
+        } else {
+            setName("Back Vis");
+        }
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;   
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     class point {
         public double a; // angle
         public double d; // distance
+
+        point() {
+            a = 0;
+            d = 0;
+        }
 
     }
 
@@ -42,7 +66,6 @@ public class VisionData implements Sendable {
     }
     public void set() {
         time = System.currentTimeMillis();
-        double[] pts = {p1.a,p1.d,p2.a,p2.d};
         if(front) {
             frontData.set(this);
         } else {
@@ -67,16 +90,6 @@ public class VisionData implements Sendable {
     }
 
     @Override
-    public String getName() {
-        return front ? "Front vision" : "Back vision";
-    }
-
-    @Override
-    public void setName(String name) {
-        
-    }
-
-    @Override
     public String getSubsystem() {
         return null;
     }
@@ -90,10 +103,10 @@ public class VisionData implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         String name = getName();
-        builder.addBooleanProperty(name + " Found", this::found, null);
-        builder.addDoubleProperty(name + " A1", this::a1, null);
-        builder.addDoubleProperty(name + " D1", this::d1, null);
-        builder.addDoubleProperty(name + " A2", this::a2, null);
-        builder.addDoubleProperty(name + " D2", this::d2, null);
+        builder.addBooleanProperty(name + "Found", this::found, null);
+//        builder.addDoubleProperty(name + " A1", this::a1, null);
+//        builder.addDoubleProperty(name + " D1", this::d1, null);
+//        builder.addDoubleProperty(name + " A2", this::a2, null);
+//        builder.addDoubleProperty(name + " D2", this::d2, null);
     }
 }

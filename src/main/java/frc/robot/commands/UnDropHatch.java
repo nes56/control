@@ -10,42 +10,36 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-public class ActivateMotorClimbForward extends Command {
-double power;
+public class UnDropHatch extends Command {
 
-  public ActivateMotorClimbForward(double power){
-    this.power = power;
-    }
+  int cycles = 0;
 
-  
- // public ActivateMotorClimb(double power, )
+  public UnDropHatch() {
+  }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    cycles = 0;
+    Robot.hatchPanelsSystem.unDropPanel();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.climb.setValue_frontJack(power);
+    cycles++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return true;
-    /*if(power > 0)
-    return Robot.climb.liftMotor_top.getSensorCollection().isFwdLimitSwitchClosed();
-    else 
-    return Robot.climb.liftMotor_top.getSensorCollection().isRevLimitSwitchClosed();
-  }*/
-}
+    return cycles >= 10;
+  }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-
+    Robot.hatchPanelsSystem.stopBuchna();
   }
 
   // Called when another command which requires one or more of the same

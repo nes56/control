@@ -23,7 +23,7 @@ public class ChangeDir extends Command {
   private HatchPanelsSystem hatchPanelsSystem;
 
   public ChangeDir() {
-    target = hatchPanelsSystem.isforward ? -hatchPanelsSystem.CHANGE_DIR_MOVE : hatchPanelsSystem.CHANGE_DIR_MOVE; 
+    target = hatchPanelsSystem.isforward ? -HatchPanelsSystem.CHANGE_DIR_MOVE : HatchPanelsSystem.CHANGE_DIR_MOVE; 
     hatchPanelsSystem = Robot.hatchPanelsSystem;   
     
   }
@@ -31,7 +31,7 @@ public class ChangeDir extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    startDis = hatchPanelsSystem.GetPositionInMM(); 
+    startDis = hatchPanelsSystem.getEncoder();
     target = target + startDis;
   }
 
@@ -44,9 +44,9 @@ public class ChangeDir extends Command {
     else if(speed < MIN_SPEED)
       speed = MIN_SPEED;
     if(hatchPanelsSystem.isforward){
-      hatchPanelsSystem.SetValue(-speed);
+      hatchPanelsSystem.SetSpeed(-speed);
     }else{
-      hatchPanelsSystem.SetValue(speed);
+      hatchPanelsSystem.SetSpeed(speed);
     }
   }
 

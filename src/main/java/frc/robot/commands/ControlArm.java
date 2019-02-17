@@ -9,16 +9,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
+import frc.robot.subsystems.HatchPanelsSystem;
 
-public class ActivateMotorClimbForward extends Command {
-double power;
-
-  public ActivateMotorClimbForward(double power){
-    this.power = power;
-    }
-
+public class ControlArm extends Command {
   
- // public ActivateMotorClimb(double power, )
+  
+  public ControlArm() {
+  }
 
   // Called just before this Command runs the first time
   @Override
@@ -28,24 +25,22 @@ double power;
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.climb.setValue_frontJack(power);
-  }
+    double v = Robot.driverInterface.joystickRight.getRawAxis(3);
+    v = (v - 1) / -2;
+    v = v * HatchPanelsSystem.CHANGE_DIR_MOVE;
+    Robot.hatchPanelsSystem.SetPosituon(v);
+}
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return true;
-    /*if(power > 0)
-    return Robot.climb.liftMotor_top.getSensorCollection().isFwdLimitSwitchClosed();
-    else 
-    return Robot.climb.liftMotor_top.getSensorCollection().isRevLimitSwitchClosed();
-  }*/
-}
+    return false;
+  }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-
+    //close();
   }
 
   // Called when another command which requires one or more of the same

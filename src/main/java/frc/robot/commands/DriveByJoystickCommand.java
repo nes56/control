@@ -7,7 +7,6 @@
 
 package frc.robot.commands;
 
-import org.opencv.core.Mat;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
@@ -29,14 +28,18 @@ public class DriveByJoystickCommand extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    
+    if(!Robot.chassis.HaveActiveCommand())
+    {
       double leftJoystickValue = -Robot.driverInterface.joystickLeft.getY();   
       double rightJoystickValue = -Robot.driverInterface.joystickRight.getY();
       leftJoystickValue = Math.abs(leftJoystickValue)<MIN_JS_VALUE ? 0 : leftJoystickValue;
       rightJoystickValue = Math.abs(rightJoystickValue)<MIN_JS_VALUE ? 0 : rightJoystickValue;
       double lValue = Math.abs(leftJoystickValue) * leftJoystickValue;
       double rValue = Math.abs(rightJoystickValue) * rightJoystickValue;
+      if(rValue != 0 || lValue != 0)
+        System.out.println("right/left: " + rValue + "/" + lValue);
       Robot.chassis.motorsSetValue(lValue, rValue);
+    }
     }
   
 

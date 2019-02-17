@@ -9,42 +9,37 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
-import frc.robot.subsystems.DriverInterface;
-import frc.robot.subsystems.Climb;
 
-public class controlClimbing extends Command {
-  public controlClimbing() {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
+public class LockJacks extends Command {
+
+  int cycles = 0;
+
+  public LockJacks() {
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    cycles = 0;
+    Robot.climb.lock();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    double move_value = Robot.driverInterface.joystickLeft.getRawAxis(3);
-    double lift_value = Robot.driverInterface.joystickRight.getRawAxis(3);
-    move_value = (move_value + 1) / 2;
-    lift_value = (lift_value + 1) / 2;
-    System.out.println("move value: " + move_value + "/ lift value: " + lift_value);
-//    Robot.climb.setValue_moveMotor(move_value);
-    Robot.climb.setValue_liftMotorBot(move_value);
-    Robot.climb.setValue_liftMotorTop(-lift_value);
+    cycles++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
+    return cycles >= 10;
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    Robot.climb.stopBuchna();
   }
 
   // Called when another command which requires one or more of the same

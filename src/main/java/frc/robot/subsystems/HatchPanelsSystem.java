@@ -7,9 +7,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
@@ -19,13 +21,13 @@ import frc.robot.RobotMap;
 /**
  * Add your docs here.
  */
+import frc.robot.commands.DropHatch;
 public class HatchPanelsSystem extends Subsystem {
   
   public static final double K_P = 0.1;
   public static final double K_I = 0;
   public static final double K_D = 0;
   public static final double CHANGE_DIR_MOVE = 250;
-//  public static final double PULSE_DIS=0.116;
 
  
   public double encoderBase = 0;
@@ -61,10 +63,11 @@ public class HatchPanelsSystem extends Subsystem {
 
   public void ChangeDir(){
     isforward = !isforward;
+    ResetEnc();
   }
 
   public void StopMotor(){
-//    motor.set(ControlMode.Position, motor.getSelectedSensorPosition());
+    motor.set(ControlMode.PercentOutput, 0);
   }
 
   public void SetPosituon(double value){
@@ -75,21 +78,33 @@ public class HatchPanelsSystem extends Subsystem {
 //    motor.set(ControlMode.Velocity, value);
   }
 
+  public void SetPower(double value){
+    motor.set(ControlMode.PercentOutput, value);
+  }
+
   public double getEncoder() {
-//    System.out.println("Arm Encoder = " + motor.getSelectedSensorPosition());
     return motor.getSelectedSensorPosition(); // - encoderBase;
   }
+
+  boolean dropHatchPressed = false;
+  DropHatch dropHatch = new DropHatch();
 
    public void UpdateStatus(){
      if(Robot.driverInterface.joystickLeft.getRawButtonPressed(DriverInterface.RESET_ARM_ENCODER)){
        ResetEnc();
      }
+     double v = Robot.driverInterface.xbox.getTriggerAxis(Hand.kRight);
+     if(v > 0.5 && !dropHatchPressed) {
+       dropHatchPressed = true;
+       dropHatch.start();
+     } else if(v < 0.5) {
+       dropHatchPressed = false;
+     }
+
    }
 
   @Override
   public void initDefaultCommand() {
-    // Set the default command for a subsystem here.
-    // setDefaultCommand(new MySpecialCommand());
   }
 
   public boolean isForward() {
@@ -103,11 +118,11 @@ public class HatchPanelsSystem extends Subsystem {
   }
 
   public void dropPanel(){
-    buchna.set(DoubleSolenoid.Value.kForward);
+    buchna.set(DoubleSolenoid.Value.kReverse);
   }
   
   public void unDropPanel(){
-    buchna.set(DoubleSolenoid.Value.kReverse);
+    buchna.set(DoubleSolenoid.Value.kForward);
   }
 
   public void stopBuchna(){

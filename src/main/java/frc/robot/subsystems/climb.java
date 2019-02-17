@@ -42,7 +42,7 @@ public Climb()  {
 }
 
 public void setValue_moveMotor(double value){
-//  move_motor.set(ControlMode.PercentOutput, value);
+  move_motor.set(ControlMode.PercentOutput, value);
 } 
 
 public void setValue_frontJack(double value){

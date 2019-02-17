@@ -9,7 +9,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
-import frc.robot.subsystems.HatchPanelsSystem;
+import frc.robot.subsystems.DriverInterface;
 
 public class ControlArm extends Command {
   
@@ -25,10 +25,18 @@ public class ControlArm extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    double v = Robot.driverInterface.joystickRight.getRawAxis(3);
-    v = (v - 1) / -2;
-    v = v * HatchPanelsSystem.CHANGE_DIR_MOVE;
-    Robot.hatchPanelsSystem.SetPosituon(v);
+    try {
+    double v = Robot.driverInterface.xbox.getRawAxis(DriverInterface.ARM);
+    if(Math.abs(v) < 0.1) {
+      v = 0;
+    }
+    if(v != 0) {
+      System.out.println("Arm power = " + v);
+    }
+    Robot.hatchPanelsSystem.SetPower(v);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
 }
 
   // Make this return true when this Command no longer needs to run execute()

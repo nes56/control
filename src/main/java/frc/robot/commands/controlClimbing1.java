@@ -10,12 +10,18 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.subsystems.DriverInterface;
 
 public class controlClimbing1 extends Command {
 
-  double K_P = 2.8/100; // 1 degree error = correct +/- 1% absolute power
-  double K_I = K_P/100.0;
-  double K_D = 5.0 / 100.0;
+  double K_PF = 2.0/100; // 1 degree error = correct +/- 1% absolute power
+  double K_PB = 2.8/100; // 1 degree error = correct +/- 1% absolute power
+  double K_I = 0.0;
+  double K_D = 0;
+  double MAX_ERROR = 5;
+  double MIN_POWER = 0.1;
+  double MIN_MOVE_POWER = 0.05;
+  double FRONT_RATIO = 0.85;
   double basePitch = 0;
   boolean inRaiseBackJack = false;
   double sumError;
@@ -36,6 +42,7 @@ public class controlClimbing1 extends Command {
     Robot.chassis.SetCommand(this);
     // use this to keep the back jack raised at the end
     inRaiseBackJack = false; 
+    sumError = 0;
   }
 
   @Override
@@ -46,34 +53,37 @@ public class controlClimbing1 extends Command {
     double jacksV = Robot.driverInterface.joystickRight.getRawAxis(3);
     double frontJackV = Robot.driverInterface.joystickLeft.getRawAxis(3);
     double backJackV = -Robot.driverInterface.joystickLeft.getY();
+    moveV = Math.max(moveV, MIN_MOVE_POWER);
     jacksV = (jacksV - 1) / -2; // down is 0, up is 1 (joystick provide 1 at up, -1 at down)
     jacksV = jacksV * jacksV;
-    frontJackV = (frontJackV - 1) / 2; // move from 0 to -1 (lift fron tp)
+    frontJackV = (frontJackV - 1) / -2; // move from 0 to -1 (lift fron tp)
     // calculate the pitch correction
     double pitchError = Robot.chassis.getGyroPitch() - basePitch; // error < 0 - front is higher
+    System.out.printf("Climb values - move=%f jacks=%f front=%f back=%f\n",
+      moveV, jacksV, frontJackV, backJackV);
     sumError += pitchError;
     double i = sumError * K_I;
-    double p = K_P * pitchError;
-//   double d = (lastError - pitchError) * K_D;
+    double pf = K_PF * pitchError;
+    double pb = K_PB * pitchError;
+    double d = (lastError - pitchError) * K_D;
     lastError = pitchError;
-    double corr = Math.abs(p + i);
-    System.out.println("p = " + p + " sumError = " + sumError + " corr = " + corr + " i = " + i);
-    double Moshe = 0.2; //0.79; // Front = Rear * Ratio
-    double bjack = jacksV;
-    double fjack = jacksV*Moshe;
-    if(pitchError < 0) { // front is high
-      bjack += corr;
-    } else {
-      fjack += corr * Moshe;
-    }
-    if(pitchError > 15) {
-      fjack = 0;
-    } else if(pitchError < -15) {
+    double bjack = jacksV - (pb + i + d);
+    double fjack = jacksV*FRONT_RATIO + (pf + i + d);
+    if(jacksV == 0) {
       bjack = 0;
+      fjack = 0;
+    } else {
+      bjack = Math.max(bjack, MIN_POWER);
+      fjack = Math.max(fjack, MIN_POWER);
+    }
+    if(pitchError > MAX_ERROR) {
+      bjack = Math.min(MIN_POWER,bjack);
+    } else if(pitchError < -MAX_ERROR) {
+      fjack = Math.min(MIN_POWER,fjack);
     }
     // check if raising/raised front jack (fjack is less then min) - in this case - ignore correction
-    if(frontJackV < -0.1) {
-      fjack = frontJackV;
+    if(frontJackV > 0.1) {
+      fjack = -frontJackV;
       bjack = jacksV;
     }
     // check if raising back jack
@@ -89,27 +99,18 @@ public class controlClimbing1 extends Command {
     SmartDashboard.putNumber("Jack Front", fjack);
     SmartDashboard.putNumber("Jack back", bjack);
     SmartDashboard.putNumber("Jack picth", pitchError);
-    System.out.println(" b/f jack: " + bjack +  "/" + fjack + " pitch:" + pitchError);
+    System.out.println("move " + moveV + " b/f jack: " + bjack +  "/" + fjack + " pitch:" + pitchError);
 
     // put values
-    if(jacksV < 0.5){
-      Robot.climb.setValue_backJack(jacksV);
-      Robot.climb.setValue_frontJack(jacksV);
-    }
-    else{
-      Robot.climb.setValue_backJack(bjack);
-      Robot.climb.setValue_frontJack(fjack);
-    }
+    Robot.climb.setValue_backJack(bjack);
+    Robot.climb.setValue_frontJack(fjack);
     Robot.climb.setValue_moveMotor(moveV);
-    // if front is raised - also use chassis motors
-    if(fjack < 0) { 
-      Robot.chassis.SetSpeed(moveV*400,moveV*400);
-    }
+//    Robot.chassis.SetSpeed(moveV*400,moveV*400);
   }
 
   @Override
   protected boolean isFinished() {
-    return false;
+    return Robot.driverInterface.xbox.getXButtonPressed();
   }
 
   // Called once after isFinished returns true

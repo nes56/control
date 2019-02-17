@@ -21,17 +21,17 @@ public class GroupOfMotors implements Sendable {
     public double reverse;
     public boolean isSpeedMode;
 
-    public static final double K_P = 0.2;
-    public static final double K_I = 0.002; // K_P / 50;
-    public static final double K_D = 0;
+    public static final double K_P = 0.4;
+    public static final double K_I = 0.0; // K_P / 50;
+    public static final double K_D = 0.0;
     public static final double MAX_POWER_FOR_MAX_SPEED_SLOW = 1023 * 0.1; // 1/3 power
     public static final double MAX_POWER_FOR_MAX_SPEED_FAST = 1023 * 0.1; // 1/2 power
     public static final double PULSE_DIS=0.116;
     public static final double SPEED_TO_TALON_SPEED = 0.1 / PULSE_DIS;
     public static final double MAX_SPEED_SLOW =2000;
     public static final double MAX_SPEED_FAST =7000;
-    public static final double K_F_FAST = 0.7;
-    public static final double K_F_SLOW = 0.54;
+    public static final double K_F_FAST = 0.3;
+    public static final double K_F_SLOW = 0.48;
     public double baseEncoder=0;
 
     public String name;
@@ -56,7 +56,7 @@ public class GroupOfMotors implements Sendable {
         motor1.configContinuousCurrentLimit(40);
         motor1.configPeakCurrentDuration(100);
         motor1.enableCurrentLimit(true);
-        isSpeedMode = true;
+        isSpeedMode = false;
         reverse = 1;
         SmartDashboard.putData(this);
     }
@@ -78,8 +78,6 @@ public class GroupOfMotors implements Sendable {
 
     public void _setValue(double value){
         if(Robot.chassis.inSpeedMode){
-            if(value != 0)
-                System.out.print(name + " value: " + value + " max=" + Robot.chassis.max_speed);
             _setSpeed(value * Robot.chassis.max_speed);
         }else{
             motor1.set(ControlMode.PercentOutput, reverse * value);
@@ -87,8 +85,6 @@ public class GroupOfMotors implements Sendable {
     }
 
     public void _setSpeed(double speed){
-        if(speed != 0)
-            PrintSpeed();
         motor1.set(ControlMode.Velocity, reverse * speed * SPEED_TO_TALON_SPEED);
     }
 

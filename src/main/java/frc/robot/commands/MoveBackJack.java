@@ -7,17 +7,19 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-public class DriveByJoystickCommand extends Command {
+public class MoveBackJack extends Command {
 
-  public static final double MIN_JS_VALUE = 0.2;
+  final double power = 0.3;
+  TalonSRX motor;
 
-  public DriveByJoystickCommand() {
-    
-    
+  public MoveBackJack() {
+    motor = Robot.climb.move_motor;
   }
 
   // Called just before this Command runs the first time
@@ -28,20 +30,8 @@ public class DriveByJoystickCommand extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    if(!Robot.chassis.HaveActiveCommand())
-    {
-      double leftJoystickValue = -Robot.driverInterface.joystickLeft.getY();   
-      double rightJoystickValue = -Robot.driverInterface.joystickRight.getY();
-      leftJoystickValue = Math.abs(leftJoystickValue)<MIN_JS_VALUE ? 0 : leftJoystickValue;
-      rightJoystickValue = Math.abs(rightJoystickValue)<MIN_JS_VALUE ? 0 : rightJoystickValue;
-      double lValue = Math.abs(leftJoystickValue) * leftJoystickValue;
-      double rValue = Math.abs(rightJoystickValue) * rightJoystickValue;
-      if(rValue != 0 || lValue != 0)
-        System.out.println("right/left: " + rValue + "/" + lValue);
-      Robot.chassis.motorsSetValue(lValue, rValue);
-    }
-    }
-  
+    motor.set(ControlMode.PercentOutput, power);
+  }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
@@ -58,6 +48,5 @@ public class DriveByJoystickCommand extends Command {
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
-    Robot.chassis.motorsSetValue(0,0);
   }
 }

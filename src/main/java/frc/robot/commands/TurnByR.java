@@ -7,131 +7,92 @@
 
 package frc.robot.commands;
 
+
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.GroupOfMotors;
 import frc.robot.Robot;
+import frc.robot.subsystems.Chassis;
 
 public class TurnByR extends Command {
 
-	double K_P;
-  static final double K_I = 0.0;
-	static final double K_D = 0.0;
-	double widthChassis;
-	static double FULL_CIRCLE = Math.PI * Robot.chassis.WHEEL_BASE; // Wheel Base is the Diameter
-	static double MM_PER_DEGREE = FULL_CIRCLE / 360;
-	static double VELOCITY = MM_PER_DEGREE / 10;
-	static double FINAL_ANGLE = 30;
+	public static final double ALLOWED_ERROR = 3.0;
+
 	public double targetAngle;
 	public double angle;
-	double error;
-	double lastError;
-	double sumError;
-	double lastSetPosition;
-	double speedAngle;
-	double maxSpeedAngle;
-	double currAngle;
-	double p;
-	double i;
-	double d;
-	long _startTime;
-
+	double rateOfRotation;
 	double r;
-	double left_speed;
-	double right_speed;
+	boolean isAbsAngle;
+	boolean stopAtEnd;
 
-
-  public TurnByR(double angle , double speedAngle, double r) {
-		this.angle = angle;
-		K_P = 1 / FINAL_ANGLE;
-		maxSpeedAngle = speedAngle;
-		widthChassis = Robot.chassis.WHEEL_BASE;
-		this.r = r;
-//		FULL_CIRCLE = Math.PI * 
+	public TurnByR(double angle , double speedAngle, double r) {
+		this(angle, speedAngle, r, true, false);
 	}
-	
-	
+		public TurnByR(double angle , double speedAngle, double r, boolean stopAtEnd) {
+		this(angle, speedAngle, r, stopAtEnd, false);
+	}
 
+	public TurnByR(double angle , double speedAngle, double r, boolean stopAtEnd, boolean isAbsAngle) {
+		this.angle = angle;
+		this.rateOfRotation = speedAngle;
+		this.r = r;
+		this.isAbsAngle = isAbsAngle;
+		this.stopAtEnd = stopAtEnd;
+	}
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-		currAngle = Robot.chassis.GetAngle();
-    Robot.chassis.SetCommand(this);
-		_startTime = System.currentTimeMillis();
-		targetAngle= Robot.chassis.NormalizeAngle(angle + currAngle);
-		System.out.println("Turn By Degree to " + angle +  " startTime = " + _startTime + " start angle=" + Robot.chassis.GetAngle() + 
-				" Target=" + targetAngle + " K_P= " + K_P + " max speed angle= " + maxSpeedAngle);
-		sumError = 0;
-		lastError = 0;
-		error = remaining();
+		double outer_mm_per_degree = (r + Chassis.WHEEL_BASE/2) * Math.PI / 180;
+		double inner_mm_per_degree = (r - Chassis.WHEEL_BASE/2) * Math.PI / 180;
+		System.out.println("outer_mm_per_degree: " + outer_mm_per_degree + 
+		"  inner_mm_per_degree: " + inner_mm_per_degree);
+		Robot.chassis.SetCommand(this);
+		double curr = Robot.chassis.GetAngle();
+		if(isAbsAngle) {
+			targetAngle = angle;
+			angle = Robot.chassis.NormalizeAngle(targetAngle  - curr);
+		} else {
+			targetAngle= Robot.chassis.NormalizeAngle(angle + curr);
+		}
+		double outerSpeed = outer_mm_per_degree * rateOfRotation;
+		double innerSpeed = inner_mm_per_degree * rateOfRotation;
+		System.out.println("outerSpeed: " + outerSpeed + "  innerSpeed: " + innerSpeed);
+		if(angle > 0) {
+			Robot.chassis.SetSpeed(outerSpeed, innerSpeed);
+		} else {
+			Robot.chassis.SetSpeed(innerSpeed, outerSpeed);
+		}
   }
-  
-  private double remaining() {
-		return Math.abs(targetAngle - currAngle);
-	}
-	
-
-	public void SetSpeed(double speed){
-    if(angle < 0){
-      right_speed = speed * (r + 0.5 * widthChassis) / r;
-      left_speed = speed * (r - 0.5 * widthChassis) / r;
-    }
-    else{
-      left_speed = speed * (r + 0.5 * widthChassis) / r;
-      right_speed = speed * (r - 0.5 * widthChassis) / r;
-    }
-  }
-
+	 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-		double corr;
-		double speed;
-		currAngle = Robot.chassis.GetAngle();
-		error = remaining();
-		sumError += error; 
-		p = error * K_P;
-		i = sumError * K_I;
-		d = (error - lastError) * K_D;
-		corr = p + i + d;
-		speedAngle = maxSpeedAngle * corr;
-		if(speedAngle > maxSpeedAngle)
-			speedAngle = maxSpeedAngle;
-		speed = speedAngle * MM_PER_DEGREE;
-		if(Math.abs(speed) < GoStraight.MIN_SPEED){
-			speed = angle < 0 ? -GoStraight.MIN_SPEED : GoStraight.MIN_SPEED; 
-		}
-    SetSpeed(speed);
-		Robot.chassis.SetSpeed(left_speed, -right_speed);
-		System.out.println("speed: " + speed + " /error: " + error);
-		lastError = error;
-
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    if((angle >= 0 && error <=3 ) || (angle < 0 && error >= -3)) {
-			return true;
-		}
-		return false;
+
+		double currAngle = Robot.chassis.GetAngle();
+		double remain = targetAngle - currAngle;
+		System.out.println("TuurnR remain - " + remain);
+		return Math.abs(remain) < ALLOWED_ERROR;
 	}
 
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    System.out.println("END Turn By Degree to " + angle +  " end angle=" + currAngle + "error= " + error); 
-    /*Robot.chassis.motorsLeft.ConfigKP(GroupOfMotors.K_P);
-    Robot.chassis.motorsRight.ConfigKP(GroupOfMotors.K_P);*/
-		Robot.chassis.StopMotors();
+		System.out.println("END Turn By Degree to " + angle +  " end angle=" + Robot.chassis.GetAngle()); 
+		if(stopAtEnd) {
+			Robot.chassis.StopMotors();
+		}
 		Robot.chassis.SetCommand(null);
-
   }
 
   // Called when another command which requires one or more of the same
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
+		close();
   }
 }

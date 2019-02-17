@@ -7,58 +7,58 @@
 
 package frc.robot;
 
-import javax.lang.model.util.ElementScanner6;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-public class GroupOfMotors {
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class GroupOfMotors implements Sendable {
     
     public TalonSRX motor1;
-  //  public TalonSRX motor2;
+    // public TalonSRX motor2;
     public double reverse;
     public boolean isSpeedMode;
-    public static final double K_P = 1.0 / 5.0;
-    public static final double K_I = 0;
+
+    public static final double K_P = 0.2;
+    public static final double K_I = 0.002; // K_P / 50;
     public static final double K_D = 0;
-    public static final double MAX_POWER_FOR_MAX_SPEED_SLOW = 1023 * 0.5; // 1/3 power
-    public static final double MAX_POWER_FOR_MAX_SPEED_FAST = 1023 * 0.8; // 1/2 power
+    public static final double MAX_POWER_FOR_MAX_SPEED_SLOW = 1023 * 0.1; // 1/3 power
+    public static final double MAX_POWER_FOR_MAX_SPEED_FAST = 1023 * 0.1; // 1/2 power
     public static final double PULSE_DIS=0.116;
     public static final double SPEED_TO_TALON_SPEED = 0.1 / PULSE_DIS;
-    public static final double MAX_SPEED_SLOW =2500;
+    public static final double MAX_SPEED_SLOW =2000;
     public static final double MAX_SPEED_FAST =7000;
-    public static final double K_F_FAST = MAX_POWER_FOR_MAX_SPEED_FAST / (MAX_SPEED_FAST * SPEED_TO_TALON_SPEED);
-    public static final double K_F_SLOW = MAX_POWER_FOR_MAX_SPEED_SLOW / (MAX_SPEED_SLOW * SPEED_TO_TALON_SPEED);
+    public static final double K_F_FAST = 0.7;
+    public static final double K_F_SLOW = 0.54;
     public double baseEncoder=0;
 
+    public String name;
 
-    public GroupOfMotors(int port1, int port2, boolean in_fast_mode){
-        System.out.println("Starting motor - " + port1);
-        motor1= new TalonSRX(port1);
-    //    motor2= new TalonSRX(port2);
-    //    motor2.follow(motor1);
+
+    public GroupOfMotors(int port1, int port2, boolean in_fast_mode, String name) {
+        this.name = name;
+        System.out.println("Starting " + name + " motor on port " + port1);
+        motor1 = new TalonSRX(port1);
+//        motor2 =  new TalonSRX(port2);
+//        motor2.follow(motor1);
         // set PID
         motor1.config_kP(0, K_P,0);
-    //    motor2.config_kP(0, K_P,0);
         motor1.config_kI(0, K_I,0);
-    //    motor2.config_kI(0, K_I,0);
         motor1.config_kD(0, K_D,0);
-    //    motor2.config_kD(0, K_D,0);
-        motor1.configClosedloopRamp(0.5);
-        motor1.configContinuousCurrentLimit(40);
-        motor1.configPeakCurrentDuration(100);
-        motor1.enableCurrentLimit(true);
-        /*motor2.configClosedloopRamp(0.5);
-        motor2.configContinuousCurrentLimit(40);
-        motor2.configPeakCurrentDuration(100);
-        motor2.enableCurrentLimit(true);*/
-        isSpeedMode = true;
-        reverse = 1;
         if(in_fast_mode) {
             ConfigKF(K_F_FAST);
         } else {
             ConfigKF(K_F_SLOW);
         }
+        motor1.configClosedloopRamp(0.5);
+        motor1.configContinuousCurrentLimit(40);
+        motor1.configPeakCurrentDuration(100);
+        motor1.enableCurrentLimit(true);
+        isSpeedMode = true;
+        reverse = 1;
+        SmartDashboard.putData(this);
     }
 
     public void ConfigKP(double k_p){
@@ -77,7 +77,9 @@ public class GroupOfMotors {
     }
 
     public void _setValue(double value){
-        if(Robot.driverInterface.isSpeedMode){
+        if(Robot.chassis.inSpeedMode){
+            if(value != 0)
+                System.out.print(name + " value: " + value + " max=" + Robot.chassis.max_speed);
             _setSpeed(value * Robot.chassis.max_speed);
         }else{
             motor1.set(ControlMode.PercentOutput, reverse * value);
@@ -85,7 +87,8 @@ public class GroupOfMotors {
     }
 
     public void _setSpeed(double speed){
-        System.out.println("speed = " + reverse * speed * SPEED_TO_TALON_SPEED);
+        if(speed != 0)
+            PrintSpeed();
         motor1.set(ControlMode.Velocity, reverse * speed * SPEED_TO_TALON_SPEED);
     }
 
@@ -100,7 +103,6 @@ public class GroupOfMotors {
         return motor1.getSelectedSensorPosition();
     }
     public double _GetPosition(){
-        int reverseMode = Robot.chassis.isReverseMode ? -1 : 1;
         return reverse * (GetAbsPosition()-baseEncoder);
     }
     public double _GetPositionInMM(){
@@ -119,4 +121,96 @@ public class GroupOfMotors {
     public void SetFast(){
         ConfigKF(K_F_FAST);
     }
+
+    public double motorVeocity() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getSelectedSensorVelocity();
+        } else {
+            return 0;
+        }
+    }
+    public double motorPIDTarget() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getClosedLoopTarget();
+        } else {
+            return 0;
+        }
+    }
+    public double motorPIDError() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getClosedLoopError();
+        } else {
+            return 0;
+        }
+ }
+    public double motorPowerPercent() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getMotorOutputPercent();
+        } else {
+            return 0;
+        }
+    }
+    public double motorOutputVolt() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getMotorOutputVoltage();
+        } else {
+            return 0;
+        }
+    }
+    public double motorBusVolt() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getBusVoltage();
+        } else {
+            return 0;
+        }
+    }
+    public double motorCurrent() {
+        if(Robot.robot.isEnabled()) {
+            return motor1.getOutputCurrent();
+        } else {
+            return 0;
+        }
+    }
+    public void PrintSpeed(){
+        double v = motorVeocity();
+        double t = motorPIDTarget();
+        double e = motorPIDError();
+        double p = motorPowerPercent();
+        double ov = motorOutputVolt();
+        double bv = motorBusVolt();
+        double c = motorCurrent();
+        System.out.printf("%s: v=%.1f pwr=%.2f ovlt=%.1f bvlt=%.1f %%=%.0f amp=%.2f tgt=%.1f err=%.1f\n",
+                name, v, p, ov, bv, 100.0 * ov / bv, c, t, e);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+
+    }
+
+    @Override
+    public String getSubsystem() {
+        return "Chassis";
+    }
+    
+    @Override
+    public void setSubsystem(String subsystem) {
+
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty(name + " velocity", this::motorVeocity, null);
+        builder.addDoubleProperty(name + " target", this::motorPIDTarget, null);
+        builder.addDoubleProperty(name + " error", this::motorPIDError, null);
+        builder.addDoubleProperty(name + " power", this::motorPowerPercent, null);
+        builder.addDoubleProperty(name + " volt", this::motorOutputVolt, null);
+        builder.addDoubleProperty(name + " bus volt", this::motorBusVolt, null);
+        builder.addDoubleProperty(name + " amps", this::motorCurrent, null);
+	}
 }

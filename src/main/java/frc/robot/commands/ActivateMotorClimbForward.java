@@ -7,18 +7,18 @@
 
 package frc.robot.commands;
 
-
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-public class DriveByJoystickCommand extends Command {
+public class ActivateMotorClimbForward extends Command {
+double power;
 
-  public static final double MIN_JS_VALUE = 0.2;
+  public ActivateMotorClimbForward(double power){
+    this.power = power;
+    }
 
-  public DriveByJoystickCommand() {
-    
-    
-  }
+  
+ // public ActivateMotorClimb(double power, )
 
   // Called just before this Command runs the first time
   @Override
@@ -28,36 +28,29 @@ public class DriveByJoystickCommand extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    if(!Robot.chassis.HaveActiveCommand())
-    {
-      double leftJoystickValue = -Robot.driverInterface.joystickLeft.getY();   
-      double rightJoystickValue = -Robot.driverInterface.joystickRight.getY();
-      leftJoystickValue = Math.abs(leftJoystickValue)<MIN_JS_VALUE ? 0 : leftJoystickValue;
-      rightJoystickValue = Math.abs(rightJoystickValue)<MIN_JS_VALUE ? 0 : rightJoystickValue;
-      double lValue = Math.abs(leftJoystickValue) * leftJoystickValue;
-      double rValue = Math.abs(rightJoystickValue) * rightJoystickValue;
-      if(rValue != 0 || lValue != 0)
-        System.out.println("right/left: " + rValue + "/" + lValue);
-      Robot.chassis.motorsSetValue(lValue, rValue);
-    }
-    }
-  
+    Robot.climb.setValue_frontJack(power);
+  }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
-  }
+    return true;
+    /*if(power > 0)
+    return Robot.climb.liftMotor_top.getSensorCollection().isFwdLimitSwitchClosed();
+    else 
+    return Robot.climb.liftMotor_top.getSensorCollection().isRevLimitSwitchClosed();
+  }*/
+}
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
+
   }
 
   // Called when another command which requires one or more of the same
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
-    Robot.chassis.motorsSetValue(0,0);
   }
 }

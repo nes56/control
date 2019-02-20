@@ -13,7 +13,7 @@ import frc.robot.Robot;
 
 public class DriveByJoystickCommand extends Command {
 
-  public static final double MIN_JS_VALUE = 0.2;
+  public static final double MIN_JS_VALUE = 0.15;
 
   public DriveByJoystickCommand() {
     
@@ -34,10 +34,8 @@ public class DriveByJoystickCommand extends Command {
       double rightJoystickValue = -Robot.driverInterface.joystickRight.getY();
       leftJoystickValue = Math.abs(leftJoystickValue)<MIN_JS_VALUE ? 0 : leftJoystickValue;
       rightJoystickValue = Math.abs(rightJoystickValue)<MIN_JS_VALUE ? 0 : rightJoystickValue;
-      double lValue = Math.abs(leftJoystickValue) * leftJoystickValue;
-      double rValue = Math.abs(rightJoystickValue) * rightJoystickValue;
-      if(rValue != 0 || lValue != 0)
-        System.out.println("right/left: " + rValue + "/" + lValue);
+      double lValue = leftJoystickValue * leftJoystickValue * leftJoystickValue; // Math.abs(leftJoystickValue) * leftJoystickValue;
+      double rValue = rightJoystickValue *  rightJoystickValue * rightJoystickValue; // Math.abs(rightJoystickValue) * rightJoystickValue;
       Robot.chassis.motorsSetValue(lValue, rValue);
     }
     }

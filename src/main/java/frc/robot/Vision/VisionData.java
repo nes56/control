@@ -63,10 +63,10 @@ public class VisionData implements Sendable {
         found = vd.found;
         time = vd.time;
 
-        System.out.println("point front : start - angle = " + frontData.p1.a + " length = " + 
-        frontData.p1.d + " / end - angle = " + frontData.p2.a + " length = " + frontData.p2.d);
-        System.out.println("point back : start - angle = " + backData.p1.a + " length = " + 
-        backData.p1.d + " / end - angle = " + backData.p2.a + " length = " + backData.p2.d);
+//        System.out.println("point front : start - angle = " + frontData.p1.a + " length = " + 
+//        frontData.p1.d + " / end - angle = " + frontData.p2.a + " length = " + frontData.p2.d);
+//        System.out.println("point back : start - angle = " + backData.p1.a + " length = " + 
+//        backData.p1.d + " / end - angle = " + backData.p2.a + " length = " + backData.p2.d);
     }
     public void set() {
         time = System.currentTimeMillis();

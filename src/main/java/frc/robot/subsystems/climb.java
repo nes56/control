@@ -17,9 +17,9 @@ import frc.robot.RobotMap;
 public class Climb extends Subsystem  {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  public TalonSRX liftMotor_top1;
-  public TalonSRX liftMotor_top2;
-  public TalonSRX liftMotor_bot;
+  public TalonSRX fronMotor1;
+  public TalonSRX frontMotor2;
+  public TalonSRX backMotor;
   public TalonSRX move_motor;
 
   public static final double BACK_POWER_TO_MOVE_DOWN = 0.5;
@@ -34,9 +34,12 @@ public class Climb extends Subsystem  {
   public DoubleSolenoid buchna;
 
 public Climb()  {
-  liftMotor_bot = new TalonSRX(RobotMap.portClimbMotorBack);
-  liftMotor_top1 = new TalonSRX(RobotMap.portClimbMotorFront1);
-  liftMotor_top2 = new TalonSRX(RobotMap.portClimbMotorFront2);
+  backMotor = new TalonSRX(RobotMap.portClimbMotorBack);
+  backMotor.configContinuousCurrentLimit(45);
+  backMotor.configPeakCurrentDuration(300);
+  backMotor.enableCurrentLimit(true);
+  fronMotor1 = new TalonSRX(RobotMap.portClimbMotorFront1);
+  frontMotor2 = new TalonSRX(RobotMap.portClimbMotorFront2);
   move_motor = new TalonSRX(RobotMap.portClimbMoveMotor);
   buchna = new DoubleSolenoid(RobotMap.portPCM, RobotMap.portClimbBuchnaFwd, RobotMap.portClimbBuchnaBwd);
 }
@@ -46,28 +49,36 @@ public void setValue_moveMotor(double value){
 } 
 
 public void setValue_frontJack(double value){
-  liftMotor_top1.set(ControlMode.PercentOutput, value);
-  liftMotor_top2.set(ControlMode.PercentOutput, value);
+  fronMotor1.set(ControlMode.PercentOutput, value);
+  frontMotor2.set(ControlMode.PercentOutput, value);
 } 
 
 public void setValue_backJack(double value){
-  liftMotor_bot.set(ControlMode.PercentOutput, value);
+  backMotor.set(ControlMode.PercentOutput, value);
+}
+
+void setBackCurrent(double amps) {
+  backMotor.set(ControlMode.Current, amps);
+}
+void setFrontCurrent(double amps) {
+  fronMotor1.set(ControlMode.Current, amps);
+  frontMotor2.set(ControlMode.Current, amps);
 }
 
 public boolean isFrontSwitchDownPressed(){
-  return liftMotor_top1.getSensorCollection().isFwdLimitSwitchClosed();
+  return fronMotor1.getSensorCollection().isFwdLimitSwitchClosed();
 }
 
 public boolean isFrontSwitchUpPressed(){
-  return liftMotor_top1.getSensorCollection().isRevLimitSwitchClosed();
+  return fronMotor1.getSensorCollection().isRevLimitSwitchClosed();
 }
 
 public boolean isBackSwitchUpPressed(){
-  return liftMotor_bot.getSensorCollection().isFwdLimitSwitchClosed();
+  return backMotor.getSensorCollection().isFwdLimitSwitchClosed();
 }
 
 public boolean isBackSwitchDownPressed(){
-  return liftMotor_bot.getSensorCollection().isRevLimitSwitchClosed();
+  return backMotor.getSensorCollection().isRevLimitSwitchClosed();
 }
   @Override
   public void initDefaultCommand() {

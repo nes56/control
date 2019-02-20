@@ -21,7 +21,7 @@ public class GroupOfMotors implements Sendable {
     public double reverse;
     public boolean isSpeedMode;
 
-    public static final double K_P = 0.4;
+    public static final double K_P = 1.0;
     public static final double K_I = 0.0; // K_P / 50;
     public static final double K_D = 0.0;
     public static final double MAX_POWER_FOR_MAX_SPEED_SLOW = 1023 * 0.1; // 1/3 power
@@ -30,7 +30,7 @@ public class GroupOfMotors implements Sendable {
     public static final double SPEED_TO_TALON_SPEED = 0.1 / PULSE_DIS;
     public static final double MAX_SPEED_SLOW =2000;
     public static final double MAX_SPEED_FAST =7000;
-    public static final double K_F_FAST = 0.3;
+    public static final double K_F_FAST = 0.6;
     public static final double K_F_SLOW = 0.48;
     public double baseEncoder=0;
 
@@ -52,10 +52,10 @@ public class GroupOfMotors implements Sendable {
         } else {
             ConfigKF(K_F_SLOW);
         }
-        motor1.configClosedloopRamp(0.5);
-        motor1.configContinuousCurrentLimit(40);
-        motor1.configPeakCurrentDuration(100);
-        motor1.enableCurrentLimit(true);
+//        motor1.configClosedloopRamp(0.5);
+//        motor1.configContinuousCurrentLimit(40);
+//        motor1.configPeakCurrentDuration(100);
+//        motor1.enableCurrentLimit(true);
         isSpeedMode = false;
         reverse = 1;
         SmartDashboard.putData(this);
@@ -197,6 +197,10 @@ public class GroupOfMotors implements Sendable {
     @Override
     public void setSubsystem(String subsystem) {
 
+    }
+
+    public void reverseEncoder() {
+        motor1.setSensorPhase(true);
     }
 
     @Override

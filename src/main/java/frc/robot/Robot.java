@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Utils.CameraHandler;
 import frc.robot.Vision.VisionServer;
 import frc.robot.commands.ControlArm;
 import frc.robot.commands.DriveByJoysticArcade;
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot {
 
   SendableChooser<Command> driveChooser = new SendableChooser<>();
   ControlArm controlArm;
+  CameraHandler camera;
 
   @Override
   public void robotInit() {
@@ -57,7 +59,7 @@ public class Robot extends TimedRobot {
 //    SmartDashboard.putData(new CalcKF());
     climb = new Climb();
     controlArm = new ControlArm();
-
+    camera = new CameraHandler();
   }
 
   @Override

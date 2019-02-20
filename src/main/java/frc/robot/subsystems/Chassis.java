@@ -53,6 +53,7 @@ public class Chassis extends Subsystem implements Sendable {
     motorsRight.SetReverseMode(true);
     isReverseMode = false;
     SmartDashboard.putData(this);
+  //  motorsRight.reverseEncoder();
 }
 
 public void setPIDFromSmartDashboard() {

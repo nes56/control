@@ -100,7 +100,6 @@ public class HatchPanelsSystem extends Subsystem {
      } else if(v < 0.5) {
        dropHatchPressed = false;
      }
-
    }
 
   @Override
@@ -134,4 +133,5 @@ public class HatchPanelsSystem extends Subsystem {
     builder.addDoubleProperty("Encoder",this::getEncoder ,null);
     builder.addBooleanProperty("Is Front",this::isForward ,null);
   }
+
 }

@@ -10,7 +10,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-import frc.robot.subsystems.DriverInterface;
 
 public class controlClimbing1 extends Command {
 
@@ -19,13 +18,15 @@ public class controlClimbing1 extends Command {
   double K_I = 0.0;
   double K_D = 0;
   double MAX_ERROR = 5;
-  double MIN_POWER = 0.1;
-  double MIN_MOVE_POWER = 0.05;
+  double MIN_POWER = 0.5;
+  double MIN_MOVE_POWER = 0.0;
+  double MAX_CHASSIS_SPEED = 1000;
   double FRONT_RATIO = 0.85;
   double basePitch = 0;
   boolean inRaiseBackJack = false;
   double sumError;
   double lastError;
+  boolean useMaxBack = false;
 
 
   public controlClimbing1() {
@@ -35,7 +36,7 @@ public class controlClimbing1 extends Command {
 
   @Override
   protected void initialize() {
-    basePitch = Robot.chassis.getGyroPitch(); // assume current pitch is horizontal
+    basePitch = Robot.chassis.getGyroPitch() + 1; // assume current pitch is horizontal
     // set the chassis data - slow, forward and disabled JS
     Robot.chassis.setSlowMode(); 
     Robot.chassis.SetReverseMode(false);
@@ -43,11 +44,13 @@ public class controlClimbing1 extends Command {
     // use this to keep the back jack raised at the end
     inRaiseBackJack = false; 
     sumError = 0;
+    useMaxBack = false;
   }
 
   @Override
   protected void execute() {
     Robot.chassis.StopMotors();
+    Robot.compressor.stop();
     // get the JS values and normalized
     double moveV = -Robot.driverInterface.joystickRight.getY();
     double jacksV = Robot.driverInterface.joystickRight.getRawAxis(3);
@@ -81,10 +84,16 @@ public class controlClimbing1 extends Command {
     } else if(pitchError < -MAX_ERROR) {
       fjack = Math.min(MIN_POWER,fjack);
     }
+    // temp code
+    bjack = 0.4;
+    fjack = jacksV;
     // check if raising/raised front jack (fjack is less then min) - in this case - ignore correction
     if(frontJackV > 0.1) {
       fjack = -frontJackV;
-      bjack = jacksV;
+      useMaxBack = true;
+    }
+    if(useMaxBack) {
+      bjack = 0.8; // jacksV
     }
     // check if raising back jack
     if(backJackV < -0.1) { 
@@ -105,7 +114,7 @@ public class controlClimbing1 extends Command {
     Robot.climb.setValue_backJack(bjack);
     Robot.climb.setValue_frontJack(fjack);
     Robot.climb.setValue_moveMotor(moveV);
-//    Robot.chassis.SetSpeed(moveV*400,moveV*400);
+    Robot.chassis.SetSpeed(moveV*MAX_CHASSIS_SPEED,moveV*MAX_CHASSIS_SPEED);
   }
 
   @Override

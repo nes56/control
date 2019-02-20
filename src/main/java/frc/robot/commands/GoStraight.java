@@ -54,6 +54,14 @@ public class GoStraight extends Command {
     }
     this.stopAtEnd = stopAtEnd;
   }
+
+  public GoStraight(double distance,double speed,boolean stopAtEnd, double absAngle)
+  {
+    this(distance,speed,stopAtEnd,-1);
+    isAbsAngle = true;
+    this.absAngle = absAngle;
+  }
+  
   public GoStraight(double distance,double speed,boolean stopAtEnd,long maxTime, double absAngle){
     this(distance,speed,stopAtEnd,maxTime);
     isAbsAngle = true;

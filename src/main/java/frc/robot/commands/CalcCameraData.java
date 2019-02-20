@@ -9,45 +9,59 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
+import frc.robot.VectorsCalculate;
+import frc.robot.Vision.VisionData;
 import frc.robot.subsystems.HatchPanelsSystem;
 
-public class ChangeDir extends Command {
+public class CalcCameraData extends Command {
 
-  public static final double MIN_ERROR = 5;
-  double target = 0;
+  boolean isFound;
+  boolean isPush;
 
-
-  public ChangeDir() {
+  public CalcCameraData(boolean isPush) {
+    this.isPush = isPush;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    isFound = false;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    double pos = Robot.hatchPanelsSystem.getEncoder();
-    if(Robot.hatchPanelsSystem.isForward()) { 
-      // set position to back
-      target = pos - HatchPanelsSystem.CHANGE_DIR_MOVE;
-    } else {
-      target = pos + HatchPanelsSystem.CHANGE_DIR_MOVE;
-    }
-    Robot.hatchPanelsSystem.SetPosituon(target);
+    
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return Math.abs(Robot.hatchPanelsSystem.getEncoder() - target) < MIN_ERROR;
+    if(Robot.chassis.isReverseMode()){
+      return VisionData.backData.found;
+    }else{
+      return VisionData.frontData.found;
+    } 
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.hatchPanelsSystem.ChangeDir();
+    VectorsCalculate vectors;
+
+    if(Robot.chassis.isReverseMode()){
+      vectors = new VectorsCalculate(VisionData.frontData.p1.a, VisionData.frontData.p1.d,
+      VisionData.frontData.p2.a, VisionData.frontData.p2.d);
+      Robot.hatchPanelsSystem.SetPosituon(HatchPanelsSystem.CHANGE_DIR_MOVE);   
+    }else{
+      vectors = new VectorsCalculate(VisionData.backData.p1.a, VisionData.backData.p1.d,
+      VisionData.backData.p2.a, VisionData.backData.p2.d);   
+      Robot.hatchPanelsSystem.SetPosituon(0);   
+    } 
+    
+    (new ControlHatchByVision(vectors.Get_First_vector().angle, vectors.Get_First_vector().length,
+     vectors.Get_R_vector().length, vectors.Get_Line_vector().angle, 
+     vectors.Get_Final_Vector().length, isPush)).start();
   }
 
   // Called when another command which requires one or more of the same

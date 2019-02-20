@@ -11,23 +11,23 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
-public class GoStraight1 extends Command {
+public class CalcKF extends Command {
 
   long startTime;
   double sumVelocityL;
   double sumVelocityR;
   double nVelocities;
 
-  double power = 0.4;
+  double power = 0.5;
   long maxTime = 1000;
 
-  public GoStraight1() {
+  public CalcKF() {
   }
 
   @Override
   protected void initialize() {
     Robot.chassis.SetCommand(this);
-    Robot.chassis.inSpeedMode = false;
+//    Robot.chassis.inSpeedMode = false;
     Robot.chassis.motorsSetValue(power, power);
     System.out.println("gs - start");
     sumVelocityL = 0;
@@ -39,7 +39,7 @@ public class GoStraight1 extends Command {
   @Override
   protected void execute() {
     Robot.chassis.motorsSetValue(power, power);
-    if(System.currentTimeMillis() > startTime + 500) {
+    if(System.currentTimeMillis() > startTime + 1000) {
       sumVelocityR -= Robot.chassis.motorsRight.motorVeocity();
       sumVelocityL += Robot.chassis.motorsLeft.motorVeocity();
       nVelocities += 1.0;

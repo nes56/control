@@ -53,6 +53,7 @@ public class Chassis extends Subsystem implements Sendable {
     motorsRight.SetReverseMode(true);
     isReverseMode = false;
     SmartDashboard.putData(this);
+  //  motorsRight.reverseEncoder();
 }
 
 public void setPIDFromSmartDashboard() {
@@ -330,9 +331,10 @@ public void resetEncs(){
     }
 
     // reverse mode
-    if(Robot.driverInterface.joystickLeft.getRawButtonPressed(DriverInterface.REVERSE_MODE)){  //set reverse mode 
+    int pov = Robot.driverInterface.xbox.getPOV();
+    if(pov == 180){  //set reverse mode 
       Robot.chassis.SetReverseMode(true);
-    } else if(Robot.driverInterface.joystickLeft.getRawButtonPressed(DriverInterface.FORWARD_MODE)) {
+    } else if(pov == 0) {
       Robot.chassis.SetReverseMode(false);
     } 
 

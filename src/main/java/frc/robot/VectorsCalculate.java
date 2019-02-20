@@ -25,10 +25,31 @@ public class VectorsCalculate {
     public static Vector SECOND_STRAIGHT;
     public static Vector R;
 
-    public VectorsCalculate(){
+    public VectorsCalculate(double angle_start, double dis_start , double angle_end, double dis_end){
+        START_LINE = new Vector(angle_start, dis_start);
+        END_LINE = new Vector(angle_end, dis_end);
+        Set_LINE();
+        Set_MID_TO_CAMERA();
+        Set_SECOND_STRAIGHT();
+        Set_FIRST_STRAIGHT();
     }
 
-    public static Vector calculateVector(double angle_start, double dis_start , double angle_end, double dis_end){
+    public Vector Get_First_vector(){
+        return FIRST_STRAIGHT;
+    }
+
+    public Vector Get_R_vector(){
+        return R;
+    }
+
+    public Vector Get_Line_vector(){
+        return LINE;
+    }
+
+    public Vector Get_Final_Vector(){
+        return SECOND_STRAIGHT;
+    }
+   /* public static Vector calculateVector(double angle_start, double dis_start , double angle_end, double dis_end){
         START_LINE = new Vector(angle_start, dis_start);
         END_LINE = new Vector(angle_end, dis_end);
         Set_LINE();
@@ -36,28 +57,38 @@ public class VectorsCalculate {
         Set_SECOND_STRAIGHT();
         Set_FIRST_STRAIGHT();
         return FIRST_STRAIGHT;
-    }
+    } */
 
-    public static void Set_LINE(){
+    public void Set_LINE(){
         VectorPoint temp_startLine= VectorPoint.convertToPoint(START_LINE);
         VectorPoint temp_endLine= VectorPoint.convertToPoint(END_LINE);
         VectorPoint temp = VectorPoint.sub(temp_endLine , temp_startLine);
         LINE = Vector.ConvertToVector(temp);
     }
 
-    public static void Set_MID_TO_CAMERA(){
+    public void Set_MID_TO_CAMERA(){
      //   VectorPoint temp = new VectorPoint(0,0);  //??
         Vector temp = new Vector(-10 , 200);
         MID_TO_CAMERA = temp;
     }
 
-    public static void Set_SECOND_STRAIGHT(){
+    public void Set_SECOND_STRAIGHT(){
         double angle = LINE.angle;
         double dis = 1000;
         SECOND_STRAIGHT = new Vector(angle,dis);
     }
 
-    public static void Set_FIRST_STRAIGHT(){
+   /* public static Vector getR(double angle_start, double dis_start , double angle_end, double dis_end){
+        START_LINE = new Vector(angle_start, dis_start);
+        END_LINE = new Vector(angle_end, dis_end);
+        Set_LINE();
+        double angle = 90 - Math.abs(LINE.angle) ;
+        angle = LINE.angle >= 0 ? -angle : angle;
+        R = new Vector(angle , r); 
+        return R;
+    } */
+
+    public void Set_FIRST_STRAIGHT(){
         double angle = 90 - Math.abs(LINE.angle) ;
         angle = LINE.angle >= 0 ? -angle : angle;
         Vector tempR = new Vector(angle , r); 
@@ -74,11 +105,5 @@ public class VectorsCalculate {
         angle = Math.abs(Math.asin(r / temp3.GetLengthOfVector()) * 180 / Math.PI) + Math.abs(temp3.GetAngleOfVector());
         angle = LINE.angle > 0 ? -angle : angle;
         FIRST_STRAIGHT = new Vector(angle, length);       
-    }
-    public static void main(String[] args) {
-        Vector vector = VectorsCalculate.calculateVector(-50, 3800, -20, 4000);
-        double angle = vector.angle;
-        double length = vector.length;
-        System.out.println("angle = " + angle + " length = " + length);
     }
 }

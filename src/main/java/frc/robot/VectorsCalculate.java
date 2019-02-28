@@ -16,30 +16,31 @@ import frc.robot.Utils.VectorPoint;
  */
 public class VectorsCalculate {
 
-    public final static double r = 700;
+    public final static double r = 500;
     public static Vector MID_TO_CAMERA;
     public static Vector START_LINE;
     public static Vector END_LINE;
     public static Vector LINE;
     public static Vector FIRST_STRAIGHT;
     public static Vector SECOND_STRAIGHT;
-    public static Vector R;
 
     public VectorsCalculate(double angle_start, double dis_start , double angle_end, double dis_end){
         START_LINE = new Vector(angle_start, dis_start);
         END_LINE = new Vector(angle_end, dis_end);
+        System.out.println("Calc - Start = " + START_LINE);
+        System.out.println("Calc - end = " + END_LINE);
         Set_LINE();
+        System.out.println("Calc - line = " + LINE);
         Set_MID_TO_CAMERA();
+        System.out.println("Calc - mid = " + MID_TO_CAMERA);
         Set_SECOND_STRAIGHT();
+        System.out.println("Calc - sec = " + SECOND_STRAIGHT);
         Set_FIRST_STRAIGHT();
+        System.out.println("Calc - first = " + FIRST_STRAIGHT);
     }
 
     public Vector Get_First_vector(){
         return FIRST_STRAIGHT;
-    }
-
-    public Vector Get_R_vector(){
-        return R;
     }
 
     public Vector Get_Line_vector(){
@@ -68,13 +69,13 @@ public class VectorsCalculate {
 
     public void Set_MID_TO_CAMERA(){
      //   VectorPoint temp = new VectorPoint(0,0);  //??
-        Vector temp = new Vector(-10 , 200);
+        Vector temp = Vector.ConvertToVector(new VectorPoint(35,260));
         MID_TO_CAMERA = temp;
     }
 
     public void Set_SECOND_STRAIGHT(){
         double angle = LINE.angle;
-        double dis = 1000;
+        double dis = 260;
         SECOND_STRAIGHT = new Vector(angle,dis);
     }
 
@@ -92,18 +93,27 @@ public class VectorsCalculate {
         double angle = 90 - Math.abs(LINE.angle) ;
         angle = LINE.angle >= 0 ? -angle : angle;
         Vector tempR = new Vector(angle , r); 
-        VectorPoint temp1 = VectorPoint.sub(VectorPoint.convertToPoint(START_LINE), VectorPoint.convertToPoint(SECOND_STRAIGHT));
+        System.out.println("R = " + tempR);
+        VectorPoint endTurn = VectorPoint.sub(VectorPoint.convertToPoint(START_LINE),
+                     VectorPoint.convertToPoint(SECOND_STRAIGHT));
+        System.out.println(" to end turn vector = " + endTurn);
 //        double angle_temp1 = temp1.GetAngleOfVector();
 //        double length_temp1 = temp1.GetLengthOfVector();
-        VectorPoint temp2 = VectorPoint.sub(temp1, VectorPoint.convertToPoint(tempR));
+        VectorPoint turnCenter = VectorPoint.sub(endTurn, VectorPoint.convertToPoint(tempR));
+        System.out.println(" to center of turn = " + turnCenter);
 //        double angle_temp2 = temp2.GetAngleOfVector();
 //        double length_temp2 = temp2.GetLengthOfVector();
-        VectorPoint temp3 = VectorPoint.add(VectorPoint.convertToPoint(MID_TO_CAMERA), temp2);
+        VectorPoint center2center = VectorPoint.add(VectorPoint.convertToPoint(MID_TO_CAMERA), turnCenter);
+        System.out.println("center to center of turn = " + center2center);
 //        double angle_temp3 = temp3.GetAngleOfVector();
 //        double length_temp3 = temp3.GetLengthOfVector();
-        double length = Math.sqrt(Math.pow(temp3.GetLengthOfVector(),2) - Math.pow(r, 2));
-        angle = Math.abs(Math.asin(r / temp3.GetLengthOfVector()) * 180 / Math.PI) + Math.abs(temp3.GetAngleOfVector());
-        angle = LINE.angle > 0 ? -angle : angle;
+        double length = Math.sqrt(Math.pow(center2center.GetLengthOfVector(),2) - Math.pow(r, 2));
+        angle = Math.asin(r / center2center.GetLengthOfVector()) * 180 / Math.PI;
+        if(tempR.angle > 0) {
+            angle = center2center.GetAngleOfVector() + angle;
+        } else {
+            angle = center2center.GetAngleOfVector() - angle;
+        }
         FIRST_STRAIGHT = new Vector(angle, length);       
     }
 }

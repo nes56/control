@@ -8,6 +8,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.VectorsCalculate;
 import frc.robot.Vision.VisionData;
@@ -38,9 +39,9 @@ public class CalcCameraData extends Command {
   @Override
   protected boolean isFinished() {
     if(Robot.chassis.isReverseMode()){
-      return VisionData.backData.found;
+      return VisionData.backData.found();
     }else{
-      return VisionData.frontData.found;
+      return VisionData.frontData.found();
     } 
   }
 
@@ -50,18 +51,33 @@ public class CalcCameraData extends Command {
     VectorsCalculate vectors;
 
     if(Robot.chassis.isReverseMode()){
-      vectors = new VectorsCalculate(VisionData.frontData.p1.a, VisionData.frontData.p1.d,
-      VisionData.frontData.p2.a, VisionData.frontData.p2.d);
-      Robot.hatchPanelsSystem.SetPosituon(HatchPanelsSystem.CHANGE_DIR_MOVE);   
-    }else{
       vectors = new VectorsCalculate(VisionData.backData.p1.a, VisionData.backData.p1.d,
       VisionData.backData.p2.a, VisionData.backData.p2.d);   
-      Robot.hatchPanelsSystem.SetPosituon(0);   
+   //   Robot.hatchPanelsSystem.SetPosituon(HatchPanelsSystem.CHANGE_DIR_MOVE);   
+    }else{
+      vectors = new VectorsCalculate(VisionData.frontData.p1.a, VisionData.frontData.p1.d,
+      VisionData.frontData.p2.a, VisionData.frontData.p2.d);
+   //   Robot.hatchPanelsSystem.SetPosituon(0);   
     } 
-    
-    (new ControlHatchByVision(vectors.Get_First_vector().angle, vectors.Get_First_vector().length,
-     vectors.Get_R_vector().length, vectors.Get_Line_vector().angle, 
-     vectors.Get_Final_Vector().length, isPush)).start();
+
+    //-------------------------------------------------------------------------------
+   /*   vectors = new VectorsCalculate(SmartDashboard.getNumber("angle - start", 0), 
+      SmartDashboard.getNumber("dis - start", 0), SmartDashboard.getNumber("angle - end", 0),
+      SmartDashboard.getNumber("dis - end", 0));*/
+
+    System.out.println(vectors.toString());
+    System.out.println(vectors.Get_First_vector().toString());
+    System.out.println(vectors.Get_Final_Vector().toString());
+    System.out.println(vectors.Get_Line_vector().toString());
+    Robot.chassis.resetGyro();
+    Robot.chassis.resetEncs();
+    (new ControlHatchByVision(
+      vectors.Get_First_vector().angle,
+      vectors.Get_First_vector().length,
+      250, 
+      vectors.Get_Line_vector().angle,
+      150, 
+      isPush)).start();
   }
 
   // Called when another command which requires one or more of the same

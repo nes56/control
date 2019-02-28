@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
     driveChooser.setDefaultOption("Tank", new DriveByJoystickCommand());
     driveChooser.addOption("Arcade", new DriveByJoysticArcade());
     driveChooser.setName("Drive Mode");
-    SmartDashboard.putData(driveChooser);
+ //   SmartDashboard.putData(driveChooser);
     compressor = new Compressor(RobotMap.portPCM);
     compressor.start();
     hatchPanelsSystem = new HatchPanelsSystem();
@@ -60,6 +60,10 @@ public class Robot extends TimedRobot {
     climb = new Climb();
     controlArm = new ControlArm();
     camera = new CameraHandler();
+    SmartDashboard.putNumber("dis - start", 0);
+    SmartDashboard.putNumber("angle - start", 0);
+    SmartDashboard.putNumber("dis - end", 0);
+    SmartDashboard.putNumber("angle - end", 0);
   }
 
   @Override
@@ -98,7 +102,7 @@ public class Robot extends TimedRobot {
     initEnabled();
     teleopCommand = driveChooser.getSelected();
     System.out.println("Starting " + teleopCommand);
-    chassis.setSlowMode();//setFastMode();
+    chassis.setSlowMode();
     controlArm.start();
     teleopCommand.start();
    

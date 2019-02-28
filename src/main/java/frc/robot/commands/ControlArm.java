@@ -30,10 +30,7 @@ public class ControlArm extends Command {
     if(Math.abs(v) < 0.1) {
       v = 0;
     }
-    if(v != 0) {
-      System.out.println("Arm power = " + v);
-    }
-    Robot.hatchPanelsSystem.SetPower(v);
+    Robot.hatchPanelsSystem.SetPower(v*v*v);
   } catch (Exception e) {
     e.printStackTrace();
   }

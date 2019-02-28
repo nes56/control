@@ -7,6 +7,7 @@ public class VisionData implements Sendable {
 
     // contains the data from the Rasbery Pie
 
+    public static final long MAX_VALID_TIME = 70;
 
     public static VisionData frontData = new VisionData(true);
     public static VisionData backData = new VisionData(false);
@@ -49,7 +50,7 @@ public class VisionData implements Sendable {
     public volatile point p1;
     public volatile point p2;
     public volatile boolean front;
-    public volatile boolean found = false;
+    private volatile boolean found = false;
     public long time = 0;
 
     
@@ -61,7 +62,7 @@ public class VisionData implements Sendable {
         p2.d = vd.p2.d;
         front = vd.front;
         found = vd.found;
-        time = vd.time;
+        time = System.currentTimeMillis();
 
 //        System.out.println("point front : start - angle = " + frontData.p1.a + " length = " + 
 //        frontData.p1.d + " / end - angle = " + frontData.p2.a + " length = " + frontData.p2.d);
@@ -78,7 +79,7 @@ public class VisionData implements Sendable {
     }
 
     public boolean found() { 
-        return found;
+        return found && (System.currentTimeMillis() - time) < MAX_VALID_TIME;
     }
     public double a1() {
         return p1.a;

@@ -105,9 +105,9 @@ public class controlClimbing1 extends Command {
       bjack = -0.2;
     }
     // show results
-    SmartDashboard.putNumber("Jack Front", fjack);
-    SmartDashboard.putNumber("Jack back", bjack);
-    SmartDashboard.putNumber("Jack picth", pitchError);
+   // SmartDashboard.putNumber("Jack Front", fjack);
+   // SmartDashboard.putNumber("Jack back", bjack);
+    //SmartDashboard.putNumber("Jack picth", pitchError);
     System.out.println("move " + moveV + " b/f jack: " + bjack +  "/" + fjack + " pitch:" + pitchError);
 
     // put values
@@ -119,6 +119,7 @@ public class controlClimbing1 extends Command {
 
   @Override
   protected boolean isFinished() {
+   // return Robot.driverInterface.xbox.getRawButtonPressed(3);
     return Robot.driverInterface.xbox.getXButtonPressed();
   }
 

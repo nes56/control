@@ -50,7 +50,7 @@ public class SocketHandlerTask extends Thread {
         while(true) {
             int i = is.read();
             char c = (char)i;
-            System.out.print(c);
+//            System.out.print(c);
             if(c == '{') {
                 nCurl++;
             }

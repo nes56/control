@@ -36,8 +36,13 @@ public class HatchPanelsSystem extends Subsystem {
   public Command changeDirCommand;
   public DoubleSolenoid buchna;
 
+  public enum ArmPosition { FRONT, UP, BACK};
+
+  public ArmPosition armPosition;
+
   public HatchPanelsSystem() {
     super();
+    armPosition = ArmPosition.UP;
     isforward = true;
     motor= new TalonSRX(RobotMap.portArmMotor);
     motor.config_kP(0, K_P);

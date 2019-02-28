@@ -18,11 +18,15 @@ public class CameraHandler  extends Thread {
         try {
             camera = CameraServer.getInstance().startAutomaticCapture();
             camera.setExposureAuto();
-            camera.setFPS(20);
+            camera.setFPS(25);
+            camera.setResolution(320,240);
+            camera = CameraServer.getInstance().startAutomaticCapture(1);
+            camera.setExposureAuto();
+            camera.setFPS(25);
             camera.setResolution(320,240);
             videoIn = CameraServer.getInstance().getVideo();
             videoOut = CameraServer.getInstance().putVideo("Camera",640,480);
-            start();
+//            start();
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Camera NOT started - exception " + ex);

@@ -33,6 +33,7 @@ public class Chassis extends Subsystem implements Sendable {
   public double max_speed;
   public boolean in_fast_mode = false;
   public boolean inSpeedMode = true;
+  public double baseGyro = 0;
 
   public static final double WHEEL_BASE = 600;
 //  public boolean isSpeedMode;
@@ -53,7 +54,12 @@ public class Chassis extends Subsystem implements Sendable {
     motorsRight.SetReverseMode(true);
     isReverseMode = false;
     SmartDashboard.putData(this);
-  //  motorsRight.reverseEncoder();
+    motorsRight.reverseEncoder();
+    motorsLeft.reverseEncoder();
+}
+
+public void resetGyro() {
+  baseGyro = GetRawAngle();
 }
 
 public void setPIDFromSmartDashboard() {
@@ -117,7 +123,7 @@ public double GetRawAngle(){
 }
   public double GetAngle(){
   if(_gyro != null) {
-    double h = GetRawAngle();
+    double h = GetRawAngle() - baseGyro;
     if(h > 180) {
       return 180 - h;
     } else if(h < -180) {
